@@ -1,0 +1,42 @@
+name: Build APK
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build-apk:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Generate config.py from secrets
+        run: |
+          cat > config.py << 'EOF'
+          SUPABASE_URL = "${{ secrets.SUPABASE_URL }}"
+          SUPABASE_ANON_KEY = "${{ secrets.SUPABASE_ANON_KEY }}"
+          EOF
+          wc -c config.py
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Flet
+        run: pip install flet==1.1.0
+
+      # Flet сам скачает Flutter и Android SDK
+      - name: Build APK
+        run: flet build apk --yes --verbose
+        env:
+          FLET_CLI_NO_RICH_OUTPUT: 1
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: tasks-apk
+          path: build/apk
+          if-no-files-found: error

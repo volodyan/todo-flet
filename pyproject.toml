@@ -1,0 +1,12 @@
+[project]
+name = "tasks-app"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = [
+  "flet==1.1.0",
+  "supabase",
+]
+
+[tool.flet]
+product = "Tasks"
+org = "com.volodya.tasks"

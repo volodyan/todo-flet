@@ -2,13 +2,16 @@ import os
 import flet as ft
 from supabase import create_client, Client
 
-# --- Инициализация Supabase ---
-# Ключи не в коде: локально — os.environ, при сборке APK — через flet build с секретами.
 SUPABASE_URL = os.environ.get("SUPABASE_URL")
 SUPABASE_KEY = os.environ.get("SUPABASE_ANON_KEY")
 
 if not SUPABASE_URL or not SUPABASE_KEY:
-    raise RuntimeError("Не заданы SUPABASE_URL и SUPABASE_ANON_KEY")
+    try:
+        from config import SUPABASE_URL as CFG_URL, SUPABASE_ANON_KEY as CFG_KEY
+        SUPABASE_URL = CFG_URL
+        SUPABASE_KEY = CFG_KEY
+    except ImportError:
+        raise RuntimeError("Не найдены ключи Supabase")
 
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
